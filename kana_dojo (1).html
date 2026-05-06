@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>かな道場 — Kana Dojo</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client"></script>
+<style>
+:root {
+  --ink: #1a1410;
+  --paper: #f5f0e8;
+  --paper2: #ede7d9;
+  --vermillion: #c0392b;
+  --gold: #b5860d;
+  --mist: #e0d9cc;
+  --sage: #2e7d52;
+  --indigo: #2c4a8a;
+  --shadow: rgba(26,20,16,0.13);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', 'Noto Sans JP', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px var(--shadow);
+}
+.logo {
+  font-family: 'DM Serif Display', 'Noto Serif JP', serif;
+  font-size: 1.3rem;
+  letter-spacing: .02em;
+}
+.logo em { color: var(--gold); font-style: normal; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* streak */
+.streak-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(181,134,13,.18);
+  border: 1px solid rgba(181,134,13,.35);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* sync */
+.sync-status { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; font-weight: 500; letter-spacing:.04em; }
+.sync-status.idle    { background: rgba(255,255,255,.08); color: #999; }
+.sync-status.syncing { background: #fff3cd; color: #856404; }
+.sync-status.saved   { background: #d1f0da; color: #1a6b35; }
+.sync-status.error   { background: #fde8e8; color: #9b1c1c; }
+.btn-gdrive {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border: 1.5px solid rgba(255,255,255,.25); border-radius: 6px;
+  background: rgba(255,255,255,.08); color: white; font-family: inherit;
+  font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all .15s;
+}
+.btn-gdrive:hover { background: rgba(255,255,255,.18); }
+.btn-gdrive img { width: 14px; height: 14px; }
+.btn-hdr {
+  padding: 4px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 5px;
+  background: transparent; color: rgba(255,255,255,.7); font-family: inherit;
+  font-size: 0.75rem; cursor: pointer; transition: all .15s;
+}
+.btn-hdr:hover { background: rgba(255,255,255,.12); color: white; }
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--mist);
+  background: white;
+  padding: 0 24px;
+  gap: 0;
+  overflow-x: auto;
+}
+.nav-tab {
+  padding: 14px 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: all .2s;
+  margin-bottom: -2px;
+}
+.nav-tab:hover { color: var(--ink); }
+.nav-tab.active { color: var(--vermillion); border-bottom-color: var(--vermillion); }
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── DASHBOARD ── */
+.dashboard { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+
+.hero-banner {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 16px;
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content: 'かな';
+  position: absolute;
+  right: 24px; top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 8rem;
+  font-weight: 900;
+  color: rgba(181,134,13,.12);
+  line-height: 1;
+  pointer-events: none;
+}
+.hero-banner h1 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; margin-bottom: 8px; }
+.hero-banner p { font-size: 0.88rem; color: rgba(245,240,232,.7); line-height: 1.7; max-width: 480px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--vermillion); color: white;
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 0.75rem; font-weight: 700; margin-top: 14px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mist);
+}
+
+.level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+@media(max-width:600px) { .level-grid { grid-template-columns: 1fr; } }
+
+.level-card {
+  background: white;
+  border: 2px solid var(--mist);
+  border-radius: 14px;
+  padding: 20px 22px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.level-card:hover:not(.locked) { border-color: var(--vermillion); transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+.level-card.locked { opacity: .45; cursor: not-allowed; }
+.level-card.completed { border-color: var(--sage); }
+.level-card .lv-num {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: #aaa; margin-bottom: 8px;
+}
+.level-card .lv-title { font-family: 'DM Serif Display', serif; font-size: 1.15rem; margin-bottom: 4px; }
+.level-card .lv-desc { font-size: 0.78rem; color: #888; line-height: 1.5; }
+.level-card .lv-status { position: absolute; top: 14px; right: 16px; font-size: 1.1rem; }
+.level-card .lv-score {
+  display: inline-block; margin-top: 10px;
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--sage); color: white;
+  border-radius: 10px; padding: 2px 8px;
+}
+.level-card .lv-score.fail { background: var(--vermillion); }
+
+.level-card .lv-bar {
+  margin-top: 12px;
+  height: 4px; background: var(--mist); border-radius: 99px; overflow: hidden;
+}
+.level-card .lv-bar-fill { height: 100%; background: var(--vermillion); border-radius: 99px; transition: width .5s; }
+
+/* global progress */
+.global-progress {
+  background: white;
+  border: 1px solid var(--mist);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.gp-label { font-size: 0.82rem; color: #888; white-space: nowrap; }
+.gp-track { flex: 1; height: 8px; background: var(--mist); border-radius: 99px; overflow: hidden; }
+.gp-fill { height: 100%; background: linear-gradient(90deg, var(--vermillion), var(--gold)); border-radius: 99px; transition: width .6s ease; }
+.gp-pct { font-size: 0.88rem; font-weight: 700; color: var(--vermillion); white-space: nowrap; }
+
+/* ── QUIZ SCREEN ── */
+.quiz-wrap { max-width: 640px; margin: 0 auto; padding: 32px 24px; }
+
+.quiz-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 10px;
+}
+.quiz-title { font-family: 'DM Serif Display', serif; font-size: 1.1rem; }
+.quiz-meta { font-size: 0.78rem; color: #888; }
+
+.quiz-progress {
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.qp-track { flex: 1; height: 6px; background: var(--mist); border-radius: 99px; overflow: hidden; }
+.qp-fill { height: 100%; background: var(--vermillion); border-radius: 99px; transition: width .3s; }
+.qp-text { font-size: 0.75rem; color: #999; white-space: nowrap; }
+
+/* timer bar */
+.timer-bar-wrap { margin-bottom: 24px; }
+.timer-track { height: 4px; background: var(--mist); border-radius: 99px; overflow: hidden; }
+.timer-fill { height: 100%; background: var(--gold); border-radius: 99px; transition: width .1s linear; }
+
+/* question card */
+.q-card {
+  background: white;
+  border: 2px solid var(--mist);
+  border-radius: 20px;
+  padding: 36px 32px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px var(--shadow);
+  position: relative;
+}
+.q-type-label {
+  position: absolute; top: 16px; left: 20px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #ccc;
+}
+.q-kana {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(3rem, 12vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.q-hint { font-size: 0.8rem; color: #bbb; margin-top: 4px; }
+.q-sentence {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  line-height: 1.6;
+  color: var(--ink);
+}
+.q-sentence .highlight { color: var(--vermillion); border-bottom: 3px solid var(--vermillion); }
+
+/* answer options */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.opt {
+  padding: 14px 10px;
+  border: 2px solid var(--mist);
+  border-radius: 12px;
+  background: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  color: var(--ink);
+}
+.opt:hover:not(:disabled) { border-color: var(--indigo); background: rgba(44,74,138,.05); transform: translateY(-1px); }
+.opt.correct { border-color: var(--sage); background: rgba(46,125,82,.08); color: var(--sage); }
+.opt.wrong   { border-color: var(--vermillion); background: rgba(192,57,43,.06); color: var(--vermillion); }
+.opt:disabled { cursor: not-allowed; }
+
+/* explanation */
+.explanation {
+  background: var(--paper2);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  display: none;
+}
+.explanation.show { display: block; animation: fadeIn .2s ease; }
+.explanation strong { color: var(--ink); }
+
+.btn-next {
+  width: 100%; padding: 14px;
+  background: var(--ink); color: var(--paper);
+  border: none; border-radius: 12px;
+  font-family: inherit; font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  display: none;
+}
+.btn-next.show { display: block; }
+.btn-next:hover { background: var(--vermillion); }
+
+/* ── RESULT SCREEN ── */
+.result-wrap { max-width: 560px; margin: 0 auto; padding: 48px 24px; text-align: center; }
+.result-emoji { font-size: 4rem; margin-bottom: 16px; }
+.result-title { font-family: 'DM Serif Display', serif; font-size: 2rem; margin-bottom: 8px; }
+.result-subtitle { font-size: 0.9rem; color: #888; margin-bottom: 32px; }
+.result-score-ring {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--vermillion) 0deg, var(--mist) 0deg);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 32px;
+  position: relative;
+}
+.result-score-ring::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.result-score-inner { position: relative; z-index: 1; }
+.result-score-num { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 700; color: var(--vermillion); display: block; }
+.result-score-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: .1em; }
+
+.wrong-list { text-align: left; margin-bottom: 28px; }
+.wrong-list h3 { font-size: 0.85rem; font-weight: 600; color: #888; margin-bottom: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.wrong-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: white; border: 1px solid var(--mist);
+  border-radius: 10px; margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+.wrong-kana { font-family: 'Noto Serif JP', serif; font-size: 1.4rem; font-weight: 700; min-width: 40px; color: var(--vermillion); }
+.wrong-arrow { color: #ccc; }
+.wrong-correct { color: var(--sage); font-weight: 600; }
+
+.result-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all .15s; border: 2px solid var(--ink); }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: var(--vermillion); border-color: var(--vermillion); }
+.btn-outline { background: transparent; color: var(--ink); }
+.btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+/* ── REFERENCE SCREEN ── */
+.ref-wrap { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+.kana-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+.kana-table th { padding: 10px 8px; font-size: 0.7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); border-bottom: 2px solid var(--ink); text-align: center; }
+.kana-table td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--mist); }
+.kana-cell { font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 700; color: var(--ink); display: block; }
+.roma-cell { font-size: 0.72rem; color: #aaa; font-weight: 500; margin-top: 2px; display: block; }
+.kana-table tr:hover td { background: rgba(0,0,0,.02); }
+
+/* tab switcher in reference */
+.ref-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.ref-tab { padding: 7px 18px; border: 2px solid var(--mist); border-radius: 8px; background: white; font-family: inherit; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all .15s; color: #888; }
+.ref-tab.active { border-color: var(--ink); background: var(--ink); color: white; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: var(--paper);
+  padding: 10px 22px; border-radius: 10px;
+  font-size: 0.85rem; transition: transform .3s ease;
+  z-index: 9999; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media(max-width:500px) {
+  .options-grid { grid-template-columns: 1fr; }
+  .quiz-wrap, .dashboard, .ref-wrap { padding: 20px 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">かな <em>道場</em></div>
+  <div class="header-right">
+    <div class="streak-chip">🔥 <span id="streak-num">0</span> hari</div>
+    <span class="sync-status idle" id="sync-status">● Belum login</span>
+    <button class="btn-gdrive" id="gdrive-btn" onclick="handleAuthClick()">
+      <img src="https://www.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" alt="">
+      Login Drive
+    </button>
+    <button class="btn-hdr" id="save-btn" onclick="saveToGDrive()" style="display:none">💾 Simpan</button>
+    <button class="btn-hdr" id="logout-btn" onclick="handleSignOut()" style="display:none">Logout</button>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="goScreen('dashboard')">🏠 Dashboard</div>
+  <div class="nav-tab" onclick="goScreen('reference')">📖 Tabel Kana</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen active" id="screen-dashboard">
+  <div class="dashboard">
+    <div class="hero-banner">
+      <h1>Kana Dojo 🥋</h1>
+      <p>Kuasai hiragana dan katakana dari nol sampai mahir. 5 level progresif, soal selalu acak, progress tersimpan ke Google Drive.</p>
+      <span class="hero-badge">🎯 Target: Baca kana dengan lancar</span>
+    </div>
+
+    <div class="global-progress">
+      <span class="gp-label">Progress keseluruhan</span>
+      <div class="gp-track"><div class="gp-fill" id="gp-fill" style="width:0%"></div></div>
+      <span class="gp-pct" id="gp-pct">0%</span>
+    </div>
+
+    <div class="section-title">Level Belajar</div>
+    <div class="level-grid" id="level-grid"></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-wrap">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-title" id="quiz-title">Level 1 — Baca per Huruf</div>
+        <div class="quiz-meta" id="quiz-meta">Hiragana & Katakana</div>
+      </div>
+      <button class="btn btn-outline" style="padding:7px 16px;font-size:0.8rem" onclick="goScreen('dashboard')">✕ Keluar</button>
+    </div>
+
+    <div class="quiz-progress">
+      <div class="qp-track"><div class="qp-fill" id="qp-fill" style="width:0%"></div></div>
+      <span class="qp-text" id="qp-text">0/10</span>
+    </div>
+
+    <div class="timer-bar-wrap">
+      <div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+    </div>
+
+    <div class="q-card" id="q-card">
+      <span class="q-type-label" id="q-type-label">Baca huruf ini</span>
+      <div class="q-kana" id="q-kana">あ</div>
+      <div class="q-hint" id="q-hint"></div>
+    </div>
+
+    <div class="options-grid" id="options-grid"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Lanjut →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="screen-result">
+  <div class="result-wrap">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">Hebat!</div>
+    <div class="result-subtitle" id="result-subtitle"></div>
+    <div class="result-score-ring" id="score-ring">
+      <div class="result-score-inner">
+        <span class="result-score-num" id="result-score-num">0%</span>
+        <span class="result-score-label">Skor</span>
+      </div>
+    </div>
+    <div class="wrong-list" id="wrong-list"></div>
+    <div class="result-btns">
+      <button class="btn btn-primary" onclick="retryLevel()">🔁 Coba Lagi</button>
+      <button class="btn btn-outline" onclick="goScreen('dashboard')">← Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- REFERENCE -->
+<div class="screen" id="screen-reference">
+  <div class="ref-wrap">
+    <div class="section-title">Tabel Kana Lengkap</div>
+    <div class="ref-tabs">
+      <button class="ref-tab active" onclick="showRefTab('hiragana', this)">ひらがな Hiragana</button>
+      <button class="ref-tab" onclick="showRefTab('katakana', this)">カタカナ Katakana</button>
+    </div>
+    <table class="kana-table" id="kana-ref-table"></table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const HIRAGANA = [
+  {k:'あ',r:'a'},{k:'い',r:'i'},{k:'う',r:'u'},{k:'え',r:'e'},{k:'お',r:'o'},
+  {k:'か',r:'ka'},{k:'き',r:'ki'},{k:'く',r:'ku'},{k:'け',r:'ke'},{k:'こ',r:'ko'},
+  {k:'さ',r:'sa'},{k:'し',r:'shi'},{k:'す',r:'su'},{k:'せ',r:'se'},{k:'そ',r:'so'},
+  {k:'た',r:'ta'},{k:'ち',r:'chi'},{k:'つ',r:'tsu'},{k:'て',r:'te'},{k:'と',r:'to'},
+  {k:'な',r:'na'},{k:'に',r:'ni'},{k:'ぬ',r:'nu'},{k:'ね',r:'ne'},{k:'の',r:'no'},
+  {k:'は',r:'ha'},{k:'ひ',r:'hi'},{k:'ふ',r:'fu'},{k:'へ',r:'he'},{k:'ほ',r:'ho'},
+  {k:'ま',r:'ma'},{k:'み',r:'mi'},{k:'む',r:'mu'},{k:'め',r:'me'},{k:'も',r:'mo'},
+  {k:'や',r:'ya'},{k:'ゆ',r:'yu'},{k:'よ',r:'yo'},
+  {k:'ら',r:'ra'},{k:'り',r:'ri'},{k:'る',r:'ru'},{k:'れ',r:'re'},{k:'ろ',r:'ro'},
+  {k:'わ',r:'wa'},{k:'を',r:'wo'},{k:'ん',r:'n'},
+  {k:'が',r:'ga'},{k:'ぎ',r:'gi'},{k:'ぐ',r:'gu'},{k:'げ',r:'ge'},{k:'ご',r:'go'},
+  {k:'ざ',r:'za'},{k:'じ',r:'ji'},{k:'ず',r:'zu'},{k:'ぜ',r:'ze'},{k:'ぞ',r:'zo'},
+  {k:'だ',r:'da'},{k:'ぢ',r:'ji'},{k:'づ',r:'zu'},{k:'で',r:'de'},{k:'ど',r:'do'},
+  {k:'ば',r:'ba'},{k:'び',r:'bi'},{k:'ぶ',r:'bu'},{k:'べ',r:'be'},{k:'ぼ',r:'bo'},
+  {k:'ぱ',r:'pa'},{k:'ぴ',r:'pi'},{k:'ぷ',r:'pu'},{k:'ぺ',r:'pe'},{k:'ぽ',r:'po'},
+];
+const KATAKANA = [
+  {k:'ア',r:'a'},{k:'イ',r:'i'},{k:'ウ',r:'u'},{k:'エ',r:'e'},{k:'オ',r:'o'},
+  {k:'カ',r:'ka'},{k:'キ',r:'ki'},{k:'ク',r:'ku'},{k:'ケ',r:'ke'},{k:'コ',r:'ko'},
+  {k:'サ',r:'sa'},{k:'シ',r:'shi'},{k:'ス',r:'su'},{k:'セ',r:'se'},{k:'ソ',r:'so'},
+  {k:'タ',r:'ta'},{k:'チ',r:'chi'},{k:'ツ',r:'tsu'},{k:'テ',r:'te'},{k:'ト',r:'to'},
+  {k:'ナ',r:'na'},{k:'ニ',r:'ni'},{k:'ヌ',r:'nu'},{k:'ネ',r:'ne'},{k:'ノ',r:'no'},
+  {k:'ハ',r:'ha'},{k:'ヒ',r:'hi'},{k:'フ',r:'fu'},{k:'ヘ',r:'he'},{k:'ホ',r:'ho'},
+  {k:'マ',r:'ma'},{k:'ミ',r:'mi'},{k:'ム',r:'mu'},{k:'メ',r:'me'},{k:'モ',r:'mo'},
+  {k:'ヤ',r:'ya'},{k:'ユ',r:'yu'},{k:'ヨ',r:'yo'},
+  {k:'ラ',r:'ra'},{k:'リ',r:'ri'},{k:'ル',r:'ru'},{k:'レ',r:'re'},{k:'ロ',r:'ro'},
+  {k:'ワ',r:'wa'},{k:'ヲ',r:'wo'},{k:'ン',r:'n'},
+  {k:'ガ',r:'ga'},{k:'ギ',r:'gi'},{k:'グ',r:'gu'},{k:'ゲ',r:'ge'},{k:'ゴ',r:'go'},
+  {k:'ザ',r:'za'},{k:'ジ',r:'ji'},{k:'ズ',r:'zu'},{k:'ゼ',r:'ze'},{k:'ゾ',r:'zo'},
+  {k:'ダ',r:'da'},{k:'ヂ',r:'ji'},{k:'ヅ',r:'zu'},{k:'デ',r:'de'},{k:'ド',r:'do'},
+  {k:'バ',r:'ba'},{k:'ビ',r:'bi'},{k:'ブ',r:'bu'},{k:'ベ',r:'be'},{k:'ボ',r:'bo'},
+  {k:'パ',r:'pa'},{k:'ピ',r:'pi'},{k:'プ',r:'pu'},{k:'ペ',r:'pe'},{k:'ポ',r:'po'},
+];
+const ALL_KANA = [...HIRAGANA, ...KATAKANA];
+
+// Level 2: kata pendek (hiragana)
+const WORDS_H = [
+  {k:'ねこ',r:'neko',m:'kucing'},{k:'いぬ',r:'inu',m:'anjing'},{k:'さかな',r:'sakana',m:'ikan'},
+  {k:'みず',r:'mizu',m:'air'},{k:'そら',r:'sora',m:'langit'},{k:'はな',r:'hana',m:'bunga'},
+  {k:'やま',r:'yama',m:'gunung'},{k:'かわ',r:'kawa',m:'sungai'},{k:'うみ',r:'umi',m:'laut'},
+  {k:'き',r:'ki',m:'pohon'},{k:'ひ',r:'hi',m:'api/matahari'},{k:'つき',r:'tsuki',m:'bulan'},
+  {k:'あめ',r:'ame',m:'hujan'},{k:'かぜ',r:'kaze',m:'angin'},{k:'ゆき',r:'yuki',m:'salju'},
+  {k:'いえ',r:'ie',m:'rumah'},{k:'まち',r:'machi',m:'kota'},{k:'みち',r:'michi',m:'jalan'},
+  {k:'ひと',r:'hito',m:'orang'},{k:'こ',r:'ko',m:'anak'},{k:'おとこ',r:'otoko',m:'laki-laki'},
+  {k:'おんな',r:'onna',m:'perempuan'},{k:'せんせい',r:'sensei',m:'guru'},{k:'がくせい',r:'gakusei',m:'murid'},
+  {k:'ともだち',r:'tomodachi',m:'teman'},{k:'かぞく',r:'kazoku',m:'keluarga'},{k:'ちち',r:'chichi',m:'ayah'},
+  {k:'はは',r:'haha',m:'ibu'},{k:'あに',r:'ani',m:'kakak laki-laki'},{k:'あね',r:'ane',m:'kakak perempuan'},
+];
+// Level 2 kata katakana
+const WORDS_K = [
+  {k:'テレビ',r:'terebi',m:'televisi'},{k:'ラジオ',r:'rajio',m:'radio'},{k:'カメラ',r:'kamera',m:'kamera'},
+  {k:'コーヒー',r:'koohii',m:'kopi'},{k:'ジュース',r:'juusu',m:'jus'},{k:'パン',r:'pan',m:'roti'},
+  {k:'バス',r:'basu',m:'bus'},{k:'タクシー',r:'takushii',m:'taksi'},{k:'ホテル',r:'hoteru',m:'hotel'},
+  {k:'レストラン',r:'resutoran',m:'restoran'},{k:'スーパー',r:'suupaa',m:'supermarket'},{k:'コンビニ',r:'konbini',m:'minimarket'},
+  {k:'スマホ',r:'sumaho',m:'smartphone'},{k:'パソコン',r:'pasokon',m:'komputer'},{k:'インターネット',r:'intaanetto',m:'internet'},
+  {k:'アイスクリーム',r:'aisukuriimu',m:'es krim'},{k:'ケーキ',r:'keeki',m:'kue'},{k:'チョコレート',r:'chokoreeto',m:'cokelat'},
+  {k:'サッカー',r:'sakkaa',m:'sepak bola'},{k:'テニス',r:'tenisu',m:'tenis'},{k:'スポーツ',r:'supootsu',m:'olahraga'},
+  {k:'ニュース',r:'nyuusu',m:'berita'},{k:'ゲーム',r:'geemu',m:'game'},{k:'アニメ',r:'anime',m:'anime'},
+];
+
+// Level 3: kalimat pendek
+const SHORT_SENTENCES = [
+  {k:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',m:'Saya adalah murid.',highlight:'わたし'},
+  {k:'これはほんです。',r:'Kore wa hon desu.',m:'Ini adalah buku.',highlight:'ほん'},
+  {k:'あれはいぬです。',r:'Are wa inu desu.',m:'Itu adalah anjing.',highlight:'いぬ'},
+  {k:'ここはがっこうです。',r:'Koko wa gakkou desu.',m:'Di sini adalah sekolah.',highlight:'がっこう'},
+  {k:'そこはえきです。',r:'Soko wa eki desu.',m:'Di sana adalah stasiun.',highlight:'えき'},
+  {k:'わたしはにほんごをべんきょうします。',r:'Watashi wa nihongo wo benkyou shimasu.',m:'Saya belajar bahasa Jepang.',highlight:'にほんご'},
+  {k:'まいにちあさごはんをたべます。',r:'Mainichi asagohan wo tabemasu.',m:'Setiap hari saya makan sarapan.',highlight:'あさごはん'},
+  {k:'みずをのみます。',r:'Mizu wo nomimasu.',m:'Minum air.',highlight:'みず'},
+  {k:'がっこうにいきます。',r:'Gakkou ni ikimasu.',m:'Pergi ke sekolah.',highlight:'いきます'},
+  {k:'ともだちとあそびます。',r:'Tomodachi to asobimasu.',m:'Bermain bersama teman.',highlight:'ともだち'},
+  {k:'にほんごはたのしいです。',r:'Nihongo wa tanoshii desu.',m:'Bahasa Jepang itu menyenangkan.',highlight:'たのしい'},
+  {k:'そとはさむいです。',r:'Soto wa samui desu.',m:'Di luar itu dingin.',highlight:'さむい'},
+  {k:'このほんはおもしろいです。',r:'Kono hon wa omoshiroi desu.',m:'Buku ini menarik.',highlight:'おもしろい'},
+  {k:'きょうはいいてんきです。',r:'Kyou wa ii tenki desu.',m:'Hari ini cuaca bagus.',highlight:'てんき'},
+  {k:'おなかがすきました。',r:'Onaka ga sukimashita.',m:'Saya lapar.',highlight:'おなか'},
+];
+
+// Level 4: kalimat panjang
+const LONG_SENTENCES = [
+  {k:'まいあさしちじにおきて、はをみがいてから、がっこうにいきます。',r:'Maiasa shichiji ni okite, ha wo migaite kara, gakkou ni ikimasu.',m:'Setiap pagi bangun jam 7, gosok gigi, lalu pergi ke sekolah.',highlight:'まいあさ'},
+  {k:'きのうともだちとえいがをみてから、いっしょにレストランでごはんをたべました。',r:'Kinou tomodachi to eiga wo mite kara, issho ni resutoran de gohan wo tabemashita.',m:'Kemarin menonton film bersama teman, lalu makan bersama di restoran.',highlight:'ともだち'},
+  {k:'わたしのしゅみはにほんごをべんきょうすることとアニメをみることです。',r:'Watashi no shumi wa nihongo wo benkyou suru koto to anime wo miru koto desu.',m:'Hobi saya adalah belajar bahasa Jepang dan menonton anime.',highlight:'しゅみ'},
+  {k:'らいねんにほんにいって、にほんごでいろいろなひととはなしたいです。',r:'Rainen nihon ni itte, nihongo de iroiro na hito to hanashitai desu.',m:'Tahun depan ingin pergi ke Jepang dan berbicara dengan banyak orang dalam bahasa Jepang.',highlight:'らいねん'},
+  {k:'まいにちすこしずつにほんごをれんしゅうすれば、かならずじょうずになります。',r:'Mainichi sukoshi zutsu nihongo wo renshuu sureba, kanarazu jouzu ni narimasu.',m:'Jika berlatih bahasa Jepang sedikit demi sedikit setiap hari, pasti akan menjadi mahir.',highlight:'れんしゅう'},
+  {k:'しごとがおわってから、ともだちといっしょにカフェでコーヒーをのみながらはなしました。',r:'Shigoto ga owatte kara, tomodachi to issho ni kafe de koohii wo nominagara hanashimashita.',m:'Setelah pekerjaan selesai, mengobrol sambil minum kopi di kafe bersama teman.',highlight:'しごと'},
+  {k:'にほんのぶんかやしょくじにとてもきょうみがあるので、にほんごをがんばってべんきょうしています。',r:'Nihon no bunka ya shokuji ni totemo kyoumi ga aru node, nihongo wo ganbatte benkyou shite imasu.',m:'Karena sangat tertarik dengan budaya dan makanan Jepang, belajar bahasa Jepang dengan giat.',highlight:'にほん'},
+];
+
+// Level 5: campuran hiragana + katakana (kalimat nyata)
+const MIXED_SENTENCES = [
+  {k:'まいにちテレビをみます。',r:'Mainichi terebi wo mimasu.',m:'Setiap hari saya menonton TV.',highlight:'テレビ'},
+  {k:'コーヒーをのみながらほんをよみます。',r:'Koohii wo nominagara hon wo yomimasu.',m:'Membaca buku sambil minum kopi.',highlight:'コーヒー'},
+  {k:'バスにのってがっこうにいきます。',r:'Basu ni notte gakkou ni ikimasu.',m:'Naik bus pergi ke sekolah.',highlight:'バス'},
+  {k:'スマホでにほんごをべんきょうしています。',r:'Sumaho de nihongo wo benkyou shite imasu.',m:'Belajar bahasa Jepang pakai smartphone.',highlight:'スマホ'},
+  {k:'レストランでラーメンをたべました。',r:'Resutoran de raamen wo tabemashita.',m:'Makan ramen di restoran.',highlight:'ラーメン'},
+  {k:'ともだちとスーパーでかいものをしました。',r:'Tomodachi to suupaa de kaimono wo shimashita.',m:'Belanja di supermarket bersama teman.',highlight:'スーパー'},
+  {k:'アニメをみてにほんごをおぼえました。',r:'Anime wo mite nihongo wo oboemashita.',m:'Belajar bahasa Jepang dengan menonton anime.',highlight:'アニメ'},
+  {k:'コンビニでジュースとパンをかいました。',r:'Konbini de juusu to pan wo kaimashita.',m:'Membeli jus dan roti di minimarket.',highlight:'コンビニ'},
+  {k:'インターネットでにほんのニュースをよみます。',r:'Intaanetto de nihon no nyuusu wo yomimasu.',m:'Membaca berita Jepang di internet.',highlight:'インターネット'},
+  {k:'ホテルのへやでパソコンをつかいました。',r:'Hoteru no heya de pasokon wo tsukaimashita.',m:'Menggunakan komputer di kamar hotel.',highlight:'ホテル'},
+  {k:'タクシーにのってえきまでいきました。',r:'Takushii ni notte eki made ikimashita.',m:'Naik taksi pergi ke stasiun.',highlight:'タクシー'},
+  {k:'ゲームをしながらにほんごをれんしゅうします。',r:'Geemu wo shinagara nihongo wo renshuu shimasu.',m:'Berlatih bahasa Jepang sambil bermain game.',highlight:'ゲーム'},
+];
+
+const LEVELS = [
+  {
+    id: 1, title: 'Baca Per Huruf', emoji: '🔤',
+    desc: 'Kenali hiragana & katakana satu per satu',
+    type: 'single', qCount: 20, passScore: 75,
+  },
+  {
+    id: 2, title: 'Baca Per Kata', emoji: '📝',
+    desc: 'Baca kata-kata pendek dalam hiragana & katakana',
+    type: 'word', qCount: 15, passScore: 75,
+  },
+  {
+    id: 3, title: 'Kalimat Pendek', emoji: '💬',
+    desc: 'Baca dan pahami kalimat pendek 3–5 kata',
+    type: 'short', qCount: 10, passScore: 70,
+  },
+  {
+    id: 4, title: 'Kalimat Panjang', emoji: '📖',
+    desc: 'Baca kalimat panjang dengan struktur kompleks',
+    type: 'long', qCount: 8, passScore: 70,
+  },
+  {
+    id: 5, title: 'Campuran Nyata', emoji: '🌟',
+    desc: 'Kalimat nyata campuran hiragana + katakana',
+    type: 'mixed', qCount: 10, passScore: 80,
+  },
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const state = {
+  completedLevels: JSON.parse(localStorage.getItem('kana_completed') || '[]'),
+  scores: JSON.parse(localStorage.getItem('kana_scores') || '{}'),
+  streak: parseInt(localStorage.getItem('kana_streak') || '0'),
+  lastDate: localStorage.getItem('kana_lastdate') || '',
+  weakKana: JSON.parse(localStorage.getItem('kana_weak') || '{}'), // kana -> error count
+};
+
+let quiz = { level: null, questions: [], cursor: 0, correct: 0, wrongs: [], timer: null, timeLeft: 0 };
+
+// ══════════════════════════════════════════════
+// GOOGLE DRIVE
+// ══════════════════════════════════════════════
+const CLIENT_ID = '757904873096-sg2k9iht38dbuc9qm1etg083m76mns4u.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const FILE_NAME = 'kana_dojo_progress.json';
+let tokenClient = null, accessToken = null, driveFileId = null, saveTimer = null;
+
+function initApp() {
+  checkStreak();
+  renderDashboard();
+  renderRefTable('hiragana');
+
+  if (typeof google === 'undefined') {
+    setTimeout(initApp, 100);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({ client_id: CLIENT_ID, callback: () => {} });
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPES,
+      callback: async (resp) => {
+        if (resp.error) { setSyncStatus('error','● Login gagal'); showToast('Login gagal'); return; }
+        accessToken = resp.access_token;
+        setSyncStatus('syncing','● Memuat...');
+        document.getElementById('gdrive-btn').style.display = 'none';
+        document.getElementById('save-btn').style.display = '';
+        document.getElementById('logout-btn').style.display = '';
+        await loadFromGDrive();
+      }
+    });
+  } catch(e) {
+    console.warn('Google auth init failed:', e);
+  }
+}
+
+window.addEventListener('load', () => setTimeout(initApp, 200));
+
+function handleAuthClick() { tokenClient.requestAccessToken({ prompt:'consent' }); }
+function handleSignOut() {
+  google.accounts.oauth2.revoke(accessToken, () => {
+    accessToken = null; driveFileId = null;
+    setSyncStatus('idle','● Belum login');
+    document.getElementById('gdrive-btn').style.display = '';
+    document.getElementById('save-btn').style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'none';
+    showToast('Logout berhasil');
+  });
+}
+function setSyncStatus(cls, text) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-status ' + cls;
+  el.textContent = text;
+}
+
+async function loadFromGDrive() {
+  try {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id,name)`,
+      { headers: { Authorization: 'Bearer ' + accessToken } });
+    const data = await res.json();
+    if (data.files && data.files.length > 0) {
+      driveFileId = data.files[0].id;
+      const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+        { headers: { Authorization: 'Bearer ' + accessToken } });
+      const p = await fr.json();
+      state.completedLevels = p.completedLevels || [];
+      state.scores = p.scores || {};
+      state.streak = p.streak || 0;
+      state.lastDate = p.lastDate || '';
+      state.weakKana = p.weakKana || {};
+      saveLocal();
+      setSyncStatus('saved','● Tersinkron ✓');
+      showToast('Progress dimuat dari Google Drive!');
+      renderDashboard();
+    } else {
+      setSyncStatus('saved','● Terhubung ✓');
+      showToast('Terhubung! Belum ada progress tersimpan.');
+    }
+  } catch(e) { setSyncStatus('error','● Gagal'); showToast('Gagal memuat: ' + e.message); }
+}
+
+async function saveToGDrive() {
+  if (!accessToken) { showToast('Login dulu!'); return; }
+  setSyncStatus('syncing','● Menyimpan...');
+  const payload = JSON.stringify({ completedLevels: state.completedLevels, scores: state.scores, streak: state.streak, lastDate: state.lastDate, weakKana: state.weakKana, savedAt: new Date().toISOString() });
+  try {
+    if (driveFileId) {
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
+        method:'PATCH', headers:{ Authorization:'Bearer '+accessToken, 'Content-Type':'application/json' }, body:payload });
+    } else {
+      const m = await fetch('https://www.googleapis.com/drive/v3/files?fields=id', {
+        method:'POST', headers:{ Authorization:'Bearer '+accessToken, 'Content-Type':'application/json' },
+        body: JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] }) });
+      driveFileId = (await m.json()).id;
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`, {
+        method:'PATCH', headers:{ Authorization:'Bearer '+accessToken, 'Content-Type':'application/json' }, body:payload });
+    }
+    setSyncStatus('saved','● Tersimpan ✓');
+    showToast('Progress tersimpan ke Google Drive!');
+  } catch(e) { setSyncStatus('error','● Gagal'); showToast('Gagal simpan: '+e.message); }
+}
+
+function scheduleSave() {
+  saveLocal();
+  if (!accessToken) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveToGDrive(), 2500);
+}
+function saveLocal() {
+  localStorage.setItem('kana_completed', JSON.stringify(state.completedLevels));
+  localStorage.setItem('kana_scores', JSON.stringify(state.scores));
+  localStorage.setItem('kana_streak', state.streak);
+  localStorage.setItem('kana_lastdate', state.lastDate);
+  localStorage.setItem('kana_weak', JSON.stringify(state.weakKana));
+}
+
+// ══════════════════════════════════════════════
+// STREAK
+// ══════════════════════════════════════════════
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (state.lastDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (state.lastDate === yesterday) {
+    state.streak++;
+  } else if (state.lastDate && state.lastDate !== today) {
+    state.streak = 1;
+  } else if (!state.lastDate) {
+    state.streak = 1;
+  }
+  state.lastDate = today;
+  document.getElementById('streak-num').textContent = state.streak;
+  saveLocal();
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function goScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (name === 'dashboard') document.querySelector('.nav-tab').classList.add('active');
+  if (name === 'reference') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+}
+
+function renderDashboard() {
+  document.getElementById('streak-num').textContent = state.streak;
+
+  // global progress
+  const done = LEVELS.filter(l => (state.scores[l.id] || 0) >= l.passScore).length;
+  const pct = Math.round(done / LEVELS.length * 100);
+  document.getElementById('gp-fill').style.width = pct + '%';
+  document.getElementById('gp-pct').textContent = pct + '%';
+
+  const grid = document.getElementById('level-grid');
+  grid.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const prevPassed = i === 0 || (state.scores[LEVELS[i-1].id] || 0) >= LEVELS[i-1].passScore;
+    const unlocked = prevPassed;
+    const score = state.scores[lv.id];
+    const passed = score >= lv.passScore;
+    let statusIcon = passed ? '✅' : (score !== undefined && !passed ? '🔁' : (!unlocked ? '🔒' : ''));
+
+    const card = document.createElement('div');
+    card.className = 'level-card' + (!unlocked ? ' locked' : '') + (passed ? ' completed' : '');
+    card.innerHTML = `
+      <div class="lv-num">Level ${lv.id}</div>
+      <div class="lv-title">${lv.emoji} ${lv.title}</div>
+      <div class="lv-desc">${lv.desc}</div>
+      ${score !== undefined ? `<span class="lv-score ${passed ? '' : 'fail'}">${score}% ${passed ? '✓' : '✗'}</span>` : ''}
+      <div class="lv-bar"><div class="lv-bar-fill" style="width:${Math.min(score||0,100)}%"></div></div>
+      <div class="lv-status">${statusIcon}</div>
+    `;
+    if (unlocked) card.onclick = () => startLevel(lv.id);
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+// QUIZ ENGINE
+// ══════════════════════════════════════════════
+function startLevel(id) {
+  const lv = LEVELS.find(l => l.id === id);
+  quiz.level = lv;
+  quiz.questions = buildQuestions(lv);
+  quiz.cursor = 0;
+  quiz.correct = 0;
+  quiz.wrongs = [];
+  document.getElementById('quiz-title').textContent = `Level ${lv.id} — ${lv.title}`;
+  document.getElementById('quiz-meta').textContent = `${lv.qCount} soal · Lulus ≥${lv.passScore}%`;
+  goScreen('quiz');
+  renderQuestion();
+}
+
+function buildQuestions(lv) {
+  let pool = [];
+  if (lv.type === 'single') {
+    // Weighted by weak kana
+    const weighted = [];
+    ALL_KANA.forEach(k => {
+      const w = 1 + (state.weakKana[k.k] || 0) * 2;
+      for (let i = 0; i < w; i++) weighted.push(k);
+    });
+    const picked = shuffle([...weighted]).slice(0, lv.qCount * 3);
+    const unique = [];
+    const seen = new Set();
+    for (const k of picked) {
+      if (!seen.has(k.k)) { unique.push(k); seen.add(k.k); }
+      if (unique.length >= lv.qCount) break;
+    }
+    pool = unique.map(k => ({
+      type: 'single',
+      display: k.k,
+      answer: k.r,
+      hint: HIRAGANA.find(h => h.k === k.k) ? 'Hiragana' : 'Katakana',
+      explanation: `<strong>${k.k}</strong> dibaca <strong>${k.r}</strong>${HIRAGANA.find(h=>h.k===k.k) ? ' (hiragana)' : ' (katakana)'}`,
+      distractors: shuffle(ALL_KANA.filter(x => x.r !== k.r)).slice(0,3).map(x=>x.r),
+    }));
+  } else if (lv.type === 'word') {
+    const allWords = shuffle([...WORDS_H, ...WORDS_K]);
+    pool = allWords.slice(0, lv.qCount).map(w => ({
+      type: 'word',
+      display: w.k,
+      answer: w.r,
+      hint: `Artinya: ${w.m}`,
+      explanation: `<strong>${w.k}</strong> dibaca <strong>${w.r}</strong>, artinya <strong>${w.m}</strong>`,
+      distractors: shuffle([...WORDS_H,...WORDS_K].filter(x=>x.r!==w.r)).slice(0,3).map(x=>x.r),
+    }));
+  } else if (lv.type === 'short') {
+    pool = shuffle([...SHORT_SENTENCES]).slice(0, lv.qCount).map(s => ({
+      type: 'sentence',
+      display: s.k,
+      answer: s.r,
+      hint: `Artinya: ${s.m}`,
+      explanation: `<strong>${s.k}</strong><br>Romaji: <strong>${s.r}</strong><br>Arti: <strong>${s.m}</strong>`,
+      distractors: shuffle(SHORT_SENTENCES.filter(x=>x.r!==s.r)).slice(0,3).map(x=>x.r),
+    }));
+  } else if (lv.type === 'long') {
+    pool = shuffle([...LONG_SENTENCES]).slice(0, lv.qCount).map(s => ({
+      type: 'sentence',
+      display: s.k,
+      answer: s.r,
+      hint: `Artinya: ${s.m}`,
+      explanation: `<strong>${s.k}</strong><br>Romaji: <strong>${s.r}</strong><br>Arti: <strong>${s.m}</strong>`,
+      distractors: shuffle(LONG_SENTENCES.filter(x=>x.r!==s.r)).slice(0,3).map(x=>x.r),
+    }));
+  } else if (lv.type === 'mixed') {
+    pool = shuffle([...MIXED_SENTENCES]).slice(0, lv.qCount).map(s => ({
+      type: 'sentence',
+      display: s.k,
+      answer: s.r,
+      hint: `Artinya: ${s.m}`,
+      explanation: `<strong>${s.k}</strong><br>Romaji: <strong>${s.r}</strong><br>Arti: <strong>${s.m}</strong>`,
+      distractors: shuffle(MIXED_SENTENCES.filter(x=>x.r!==s.r)).slice(0,3).map(x=>x.r),
+    }));
+  }
+  return pool;
+}
+
+const TIMER_SECONDS = { single: 10, word: 15, sentence: 25 };
+
+function renderQuestion() {
+  const q = quiz.questions[quiz.cursor];
+  const total = quiz.questions.length;
+
+  // progress
+  document.getElementById('qp-fill').style.width = (quiz.cursor / total * 100) + '%';
+  document.getElementById('qp-text').textContent = `${quiz.cursor+1}/${total}`;
+
+  // card
+  document.getElementById('q-type-label').textContent =
+    q.type === 'single' ? 'Baca huruf ini' : q.type === 'word' ? 'Baca kata ini' : 'Baca kalimat ini';
+
+  const kanaEl = document.getElementById('q-kana');
+  if (q.type === 'sentence') {
+    kanaEl.innerHTML = '';
+    kanaEl.className = 'q-sentence';
+    kanaEl.textContent = q.display;
+  } else {
+    kanaEl.className = 'q-kana';
+    kanaEl.textContent = q.display;
+  }
+
+  document.getElementById('q-hint').textContent = q.hint || '';
+  document.getElementById('explanation').className = 'explanation';
+  document.getElementById('btn-next').className = 'btn-next';
+
+  // options
+  const opts = shuffle([q.answer, ...q.distractors]);
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+    btn.onclick = () => checkAnswer(opt, q);
+    grid.appendChild(btn);
+  });
+
+  // timer
+  clearInterval(quiz.timer);
+  const timerSec = TIMER_SECONDS[q.type] || 15;
+  quiz.timeLeft = timerSec;
+  const fill = document.getElementById('timer-fill');
+  fill.style.width = '100%';
+  fill.style.background = 'var(--gold)';
+  quiz.timer = setInterval(() => {
+    quiz.timeLeft -= 0.1;
+    const pct = Math.max(0, quiz.timeLeft / timerSec * 100);
+    fill.style.width = pct + '%';
+    if (pct < 30) fill.style.background = 'var(--vermillion)';
+    if (quiz.timeLeft <= 0) {
+      clearInterval(quiz.timer);
+      timeOut(q);
+    }
+  }, 100);
+}
+
+function checkAnswer(selected, q) {
+  clearInterval(quiz.timer);
+  document.getElementById('timer-fill').style.width = '0%';
+  const buttons = document.querySelectorAll('.opt');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === q.answer) btn.classList.add('correct');
+    else if (btn.textContent === selected && selected !== q.answer) btn.classList.add('wrong');
+  });
+
+  const isCorrect = selected === q.answer;
+  if (isCorrect) {
+    quiz.correct++;
+    if (q.type === 'single' && state.weakKana[q.display] > 0) {
+      state.weakKana[q.display] = Math.max(0, (state.weakKana[q.display]||0) - 1);
+    }
+  } else {
+    quiz.wrongs.push({ display: q.display, correct: q.answer, yours: selected });
+    if (q.type === 'single') {
+      state.weakKana[q.display] = (state.weakKana[q.display] || 0) + 2;
+    }
+  }
+
+  const exp = document.getElementById('explanation');
+  exp.innerHTML = (isCorrect ? '✅ Benar! ' : '❌ Salah. ') + q.explanation;
+  exp.className = 'explanation show';
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function timeOut(q) {
+  const buttons = document.querySelectorAll('.opt');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === q.answer) btn.classList.add('correct');
+  });
+  quiz.wrongs.push({ display: q.display, correct: q.answer, yours: '(waktu habis)' });
+  if (q.type === 'single') state.weakKana[q.display] = (state.weakKana[q.display] || 0) + 1;
+  const exp = document.getElementById('explanation');
+  exp.innerHTML = '⏱️ Waktu habis! ' + q.explanation;
+  exp.className = 'explanation show';
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function nextQuestion() {
+  quiz.cursor++;
+  if (quiz.cursor >= quiz.questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  clearInterval(quiz.timer);
+  const lv = quiz.level;
+  const score = Math.round(quiz.correct / quiz.questions.length * 100);
+  const passed = score >= lv.passScore;
+
+  // update state
+  if (!state.scores[lv.id] || score > state.scores[lv.id]) {
+    state.scores[lv.id] = score;
+  }
+  if (passed && !state.completedLevels.includes(lv.id)) {
+    state.completedLevels.push(lv.id);
+  }
+  scheduleSave();
+
+  // score ring
+  const deg = score / 100 * 360;
+  document.getElementById('score-ring').style.background =
+    `conic-gradient(${passed ? 'var(--sage)' : 'var(--vermillion)'} ${deg}deg, var(--mist) ${deg}deg)`;
+  document.getElementById('result-score-num').textContent = score + '%';
+
+  document.getElementById('result-emoji').textContent = score >= 90 ? '🏆' : score >= 75 ? '🎉' : score >= 50 ? '💪' : '😅';
+  document.getElementById('result-title').textContent = score >= 90 ? 'Luar biasa!' : score >= 75 ? 'Bagus sekali!' : score >= 50 ? 'Terus semangat!' : 'Jangan menyerah!';
+  document.getElementById('result-subtitle').textContent = `${quiz.correct}/${quiz.questions.length} benar · ${passed ? '✅ Level ' + lv.id + ' lulus!' : '❌ Butuh ' + lv.passScore + '% untuk lulus'}`;
+
+  // wrong list
+  const wl = document.getElementById('wrong-list');
+  if (quiz.wrongs.length > 0) {
+    wl.innerHTML = '<h3>Yang perlu dipelajari lagi</h3>' +
+      quiz.wrongs.slice(0, 8).map(w =>
+        `<div class="wrong-item">
+          <span class="wrong-kana">${w.display}</span>
+          <span class="wrong-arrow">→</span>
+          <span class="wrong-correct">✓ ${w.correct}</span>
+          <span style="margin-left:auto;color:#ccc;font-size:.78rem">Kamu: ${w.yours}</span>
+        </div>`
+      ).join('');
+  } else {
+    wl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--sage);font-weight:600">🎯 Sempurna! Tidak ada kesalahan!</div>';
+  }
+
+  goScreen('result');
+  renderDashboard();
+}
+
+function retryLevel() { startLevel(quiz.level.id); }
+
+// ══════════════════════════════════════════════
+// REFERENCE TABLE
+// ══════════════════════════════════════════════
+function showRefTab(type, btn) {
+  document.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderRefTable(type);
+}
+
+function renderRefTable(type) {
+  const data = type === 'hiragana' ? HIRAGANA : KATAKANA;
+  const table = document.getElementById('kana-ref-table');
+  // 5 columns per row
+  const cols = 5;
+  let html = '<thead><tr><th>あ段</th><th>い段</th><th>う段</th><th>え段</th><th>お段</th></tr></thead><tbody>';
+  for (let i = 0; i < data.length; i += cols) {
+    html += '<tr>';
+    for (let j = 0; j < cols; j++) {
+      const item = data[i + j];
+      if (item) {
+        html += `<td><span class="kana-cell">${item.k}</span><span class="roma-cell">${item.r}</span></td>`;
+      } else {
+        html += '<td></td>';
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
